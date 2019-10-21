@@ -71,7 +71,7 @@ def build_poly(x, degree):
     return poly
 
 def visualization(lambda_list, mse_train, mse_test,d):
-    plt.figure(1, figsize = (28, 40))
+    plt.figure(1, figsize = (30, 40))
     plt.subplot(5,5,d+1)
     plt.semilogx(lambda_list, mse_train, marker=".", color='b', label='train error')
     plt.semilogx(lambda_list, mse_test, marker=".", color='r', label='test error')
