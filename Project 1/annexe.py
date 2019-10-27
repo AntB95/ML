@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import proj1_helpers
 from implementations import *
 
-#Some other functions usful for project 1
+
 def batch_iter(y, tx, batch_size, num_batches=1, shuffle=True):
     """
     Generate a minibatch iterator for a dataset.
@@ -17,6 +17,7 @@ def batch_iter(y, tx, batch_size, num_batches=1, shuffle=True):
     for minibatch_y, minibatch_tx in batch_iter(y, tx, 32):
         <DO-SOMETHING>
     """
+
     data_size = len(y)
 
     if shuffle:
@@ -33,7 +34,38 @@ def batch_iter(y, tx, batch_size, num_batches=1, shuffle=True):
             yield shuffled_y[start_index:end_index], shuffled_tx[start_index:end_index]
 
 
+def split(data_set, indice,index):
+    """
+    data_set: dataset you want to split based on index of the column
+    indice: value of the feature you want (0,1,2,3)
+    index: index of the column you want to use 
+    return: subdataset subset based on the index feature value selected
+    """
+    y_set = data_set[0]
+    x_set = data_set[1]
+    id_set = data_set[2]
+    return (y_set[x_set[:,index] == indice],x_set[x_set[:,index] == indice],id_set[x_set[:,index] == indice])
+
+
+def replace_mean(x_set):
+    """
+    x_set: dataset you want to change to replace -999 
+    return: dataset with the mean of the column instead of -999
+    """
+
+    x_set[x_set == -999] = np.nan
+    list_mean = x_set.mean(axis = 0)
+    for i in range(0,len(list_mean)):
+        x_set[np.isnan(x_set[:,i])] = list_mean[i]
+    return x_set
+
 def get_na_columns(array, threshold, value):
+    """
+    array: dataset you want to cheak
+    threshold: % limit of na by column
+    value: value you want to check in the dataset
+    return: list of columns with more value than the threshold
+    """
     na_indices = []
     for ind, row in enumerate(array.T):
         count_na = 0
@@ -44,8 +76,13 @@ def get_na_columns(array, threshold, value):
             na_indices.append(ind)
     return na_indices
 
-#function to preprocess training and test set 
 def standardize(x_train, x_test):
+    """
+    x_train: train set you want to standardize
+    x_test: test set you want to standardize
+    return train and test set standardize
+    """
+
     mean = np.mean(x_train)
     norm = np.linalg.norm(x_train)
     x_train_std = (x_train - mean)/norm
@@ -53,9 +90,18 @@ def standardize(x_train, x_test):
     return x_train_std, x_test_std
 
 def sigmoid(x):
+    """
+    x: matrix on you want to apply the sigmoid function 
+    return: matrix with the sigmoid function apply on it
+    """
     return 0.5 * (1 + np.tanh(0.5*x))
 
 def zero_to_neg(array):
+    """
+    array: matrix on which you want to replace 0 by -1
+    return matrix with 0 replace by -1
+    """
+
     ret = np.zeros(len(array))
     for i, v in enumerate(array):
         if v == 0:
@@ -65,34 +111,21 @@ def zero_to_neg(array):
     return ret
 
 def build_poly(x, degree):
+    """
+    x: matrix on which we wish to build the polynomial degree
+    degree: the polynomial degree built
+    return: a matrix having the polynomial degree built
+    """
+
     poly = x
     for deg in range(2, degree+1):
         poly = np.concatenate((poly, np.power(x, deg)), axis = 1)
     return poly
 
-def visualization(lambda_list, mse_train, mse_test,d):
-    plt.figure(1, figsize = (30, 40))
-    plt.subplot(5,5,d+1)
-    plt.semilogx(lambda_list, mse_train, marker=".", color='b', label='train error')
-    plt.semilogx(lambda_list, mse_test, marker=".", color='r', label='test error')
-    plt.xlabel("lambda")
-    plt.ylabel("RMSE")
-    plt.title("cross validation using polynome of degree " + str(d))
-    plt.legend()
-    plt.grid()
+def add_function(x):
+    """
+    x: matrix on which we wish we want to add sin function 
+    return: matrix having sin function add
+    """
 
-def split_data(x, y, ratio = 0.8, seed = 1):
-    # set seed
-    np.random.seed(seed)
-    # generate random indices
-    num_row = len(y)
-    indices = np.random.permutation(num_row)
-    index_split = int(np.floor(ratio * num_row))
-    index_tr = indices[: index_split]
-    index_te = indices[index_split:]
-    # create split
-    x_tr = x[index_tr]
-    x_te = x[index_te]
-    y_tr = y[index_tr]
-    y_te = y[index_te]
-    return x_tr, x_te, y_tr, y_te
+    return np.concatenate((x,np.sin(x)), axis = 1)
